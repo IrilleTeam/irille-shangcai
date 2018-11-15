@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- monitorInterval 表示间隔多少秒自动检测配置文件,当配置文件变动时,自动加载新的配置文件,不需要重新启动项目 -->
+<Configuration status="WARN" monitorInterval="5">    
+	<!-- 将一些常用值提取出来，然后在文件的其他部分通过${}的形式引用，这些值可以随便定义 -->
+    <Properties>        <!-- 定义日志文件根目录 -->
+        <Property name="logDir" value="D:/xieliaobaba/logs" />
+        <!-- 定义日志的通用格式 -->
+        <Property name="genericPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight{%5level} %style{%pid}{Magenta} --- [%-21t]%style{ %-40location}{Cyan} : %msg%n" />
+        <Property name="genericPattern4File" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight{%5level} %style{%pid}{Magenta} --- [%15t] %style{%-40logger{36}}{Cyan} : %msg%n" />
+        <!-- 定义日志分卷文件通用文件名形式 -->
+        <Property name="genericFilePattern" value="%d{yyyy-MM-dd}-%i" />
+    </Properties>    
+    <!-- appender们的定义 -->
+    <Appenders>       
+     	<!-- 定义一个console类型定定义，如果需要，可以以这个为原型粘贴复制修改再定义适合自己的 -->
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${genericPattern}" disableAnsi="false" />
+        </Console>        
+        <!-- 定义一个文件appender，如果需要，可以以这个为原型粘贴复制修改再定义适合自己的，该appender的详细解释会在教程接下来的部分给出 -->
+        <RollingRandomAccessFile name="rollingRandomAccessFileAppender" fileName="${logDir}/xieliaobaba.log" filePattern="${logDir}/shoestp-${genericFilePattern}.log.zip" append="true">
+            <PatternLayout pattern="${genericPattern4File}" />
+           	<!-- 日志分卷规则 -->
+            <Policies>
+            	<!-- TimeBasedTriggeringPolicy 表示日志按照时间间隔分卷, interval表示时间间隔的长度,单位按照filePattern中分卷名中的最小时间单位自行推导,如%d{yyyy-MM-dd}最小时间单位是天, interval="1"表示每一天分一个卷 -->
+                <TimeBasedTriggeringPolicy interval="1" />
+                <!-- SizeBasedTriggeringPolicy 表示日志按照日志文件大小分卷, size="100 MB"表示当日志文件超过100 MB后自动分卷 -->
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <!-- 默认分卷规则,max表示日志分卷超过该数量后删除多余分卷, compressionLevel表示压缩等级,在日志文件以zip等压缩格式结尾时才有效,0表示不压缩,9表示最高压缩等级 -->
+            <DefaultRolloverStrategy max="10" compressionLevel="9" />
+        </RollingRandomAccessFile>
+    </Appenders>    
+    <!-- 定义logger们 -->
+    <Loggers>        
+    <!-- 定义根logger，根logger是必须的，这里我把根logger定义为异步的，也可为定义为普通的同步的，但是注意在同步根logger和异步根logger中只能存在一个，不能两个都配置 -->
+        <asyncRoot level="info">
+            <AppenderRef ref="consoleAppender" />
+            <AppenderRef ref="rollingRandomAccessFileAppender" />
+        </asyncRoot>        
+        <!-- 普通的根logger，注意，跟上面的异步跟root同时只能存在一个 -->        
+        <!-- <Root level="trace"> <AppenderRef ref="consoleAppender" /> </Root> -->        
+        <!-- 定义一个普通的logger，这里我定义为异步的 -->
+        <!-- additivity表示是否附加,logger有继承关系,并且所有的logger的父类时rootLogger,当additivity为true时,子类的日志输出为添加到父类的输出中 -->
+        <!-- 实际使用就是,当logger有appenderRef时,additivity设置为false,logger没有指定appenderRef,将additivity设置为true -->
+        <!-- <asyncLogger name="irille" level="debug" additivity="true"/> -->
+        <asyncLogger name="irille" level="debug" additivity="false" includeLocation="true">
+            <AppenderRef ref="consoleAppender" />
+        </asyncLogger>
+        <asyncLogger name="com.irille" level="debug" additivity="false" includeLocation="true">
+            <AppenderRef ref="consoleAppender" />
+        </asyncLogger>
+        <asyncLogger name="com.xieliaobaba" level="debug" additivity="false" includeLocation="true">
+            <AppenderRef ref="consoleAppender" />
+        </asyncLogger>
+    </Loggers>
+</Configuration>

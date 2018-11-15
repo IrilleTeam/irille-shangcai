@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c3p0-config>
+	<default-config>
+		<property name="driverClass">com.mysql.cj.jdbc.Driver</property>
+		<property name="jdbcUrl">jdbc:mysql://192.168.100.45:32775/xieliaobaba?useUnicode=true&amp;characterEncoding=UTF8&amp;serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;verifyServerCertificate=false</property>
+		<property name="user">root</property>
+		<property name="password">123456</property>
+
+		<property name="acquireIncrement">5</property>
+		<property name="initialPoolSize">10</property>
+		<property name="minPoolSize">10</property>
+		<property name="maxPoolSize">100</property>
+		<property name="maxIdleTime">60</property>
+	</default-config>
+</c3p0-config>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<constant name="struts.devMode" value="false" /><!-- 开发模式 -->
+	<constant name="struts.ognl.allowStaticMethodAccess" value="true"></constant>
+	<constant name="struts.multipart.maxSize" value="20485760" />
+	<constant name="struts.enable.SlashesInActionNames" value="true"/>
+	<constant name="struts.action.excludePattern" value="/static/.*?,/dist/.*?" />
+	<constant name="struts.objectFactory" value="spring" />
+	
+	<package name="xieliaobaba-default" extends="struts-default">
+		<interceptors>
+			<!-- 拦截器配置 -->
+			<interceptor name="ItpWxLogin" class="com.xieliaobaba.interceptor.ItpWxLogin"/>
+			<interceptor name="ItpManagerLogin" class="com.xieliaobaba.interceptor.ItpManagerLogin"/>
+			<interceptor name="ItpExceptionHandler" class="com.xieliaobaba.interceptor.ItpExceptionHandler"/>
+			<interceptor name="ItpDbTransaction" class="com.xieliaobaba.interceptor.ItpDbTransaction"/>
+			<interceptor name="ItpFileUpload" class="irille.pub.svr.ItpFileUpload"/>
+	
+
+			<!-- 拦截器栈配置,拦截栈可以包含拦截器栈 -->
+			<interceptor-stack name="irilleStack">
+				<interceptor-ref name="ItpExceptionHandler" />
+				<interceptor-ref name="ItpDbTransaction" />
+				<interceptor-ref name="ItpFileUpload">
+					<param name="maximumSize">4194304</param>
+				</interceptor-ref>
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			<interceptor-stack name="defaultCustomerStack">
+				<interceptor-ref name="ItpExceptionHandler" />
+				<interceptor-ref name="ItpDbTransaction" />
+				<interceptor-ref name="ItpWxLogin" />
+				<interceptor-ref name="ItpFileUpload">
+					<param name="maximumSize">4194304</param>
+				</interceptor-ref>
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			<interceptor-stack name="defaultManagerStack">
+				<interceptor-ref name="ItpExceptionHandler" />
+				<interceptor-ref name="ItpDbTransaction" />
+				<interceptor-ref name="ItpManagerLogin" />
+				<interceptor-ref name="ItpFileUpload">
+					<param name="maximumSize">4194304</param>
+				</interceptor-ref>
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+		</interceptors>
+	</package>
+	
+	<package name="api_manager" namespace="/api/manager" extends="xieliaobaba-default">
+	 <!-- 管理端默认拦截器 -->
+	 <default-interceptor-ref name="defaultManagerStack"></default-interceptor-ref>
+	 <!--获取作品列表  -->
+	 <action name="common/works/list" class="com.xieliaobaba.action.manager.common.impl.WorksAction" method="list"></action>
+	  <!--下线作品  -->
+	 <action name="common/works/unappr" class="com.xieliaobaba.action.manager.common.impl.WorksAction" method="unappr"></action>
+	  <!--审核作品  -->
+	 <action name="common/works/appr" class="com.xieliaobaba.action.manager.common.impl.WorksAction" method="appr"></action>
+	  <!--设计师作品列表  -->
+	 <action name="design/article/list" class="com.xieliaobaba.action.manager.design.impl.ArticleAciton" method="list"></action>
+	  <!--添加作品类型-->
+	 <action name="common/category/add" class="com.xieliaobaba.action.manager.common.impl.CategoryAction"  method="add"></action>
+	  <!--更新作品 类型-->
+	 <action name="common/category/upd" class="com.xieliaobaba.action.manager.common.impl.CategoryAction" method="upd"></action>
+	  <!--删除作品类型  -->
+	 <action name="common/category/del" class="com.xieliaobaba.action.manager.common.impl.CategoryAction" method="del"></action>
+	  <!--作品列表类型 -->
+	 <action name="common/category/list" class="com.xieliaobaba.action.manager.common.impl.CategoryAction" method="list"></action>
+	 <!--设计师列表  -->
+	 <action name="design/designer/list" class="com.xieliaobaba.action.manager.design.impl.DesignerAction" method="list"></action>
+	  <!--企业列表 -->
+	 <action name="material/company/list" class="com.xieliaobaba.action.manager.material.impl.CompanyAction" method="list"></action>
+	   <!--企业作品列表 -->
+	 <action name="material/design/list" class="com.xieliaobaba.action.manager.material.impl.DesignAction" method="list"></action>
+	 <!--登錄  -->
+	  <action name="common/manager/login" class="com.xieliaobaba.action.manager.common.impl.ManagerAction" method="login">
+		  <interceptor-ref name="irilleStack" />
+	  </action>
+  	 <!--注销登录 -->
+	  <action name="common/manager/signout" class="com.xieliaobaba.action.manager.common.impl.ManagerAction" method="signout">
+		  <interceptor-ref name="irilleStack" />
+	  </action>
+	 <!--获取登录用户信息 -->
+	  <action name="common/manager/info" class="com.xieliaobaba.action.manager.common.impl.ManagerAction" method="info"></action>
+	</package>
+	<!-- 微信端 -->
+	<package name="api_customer" namespace="/api/customer" extends="xieliaobaba-default">
+		<!-- 用户端默认拦截器 -->
+		<default-interceptor-ref name="defaultCustomerStack"></default-interceptor-ref>
+		<!-- 获取省份和城市 -->
+		<action name="common/location/list" class="com.xieliaobaba.action.customer.common.impl.ProvinceAction" method="listLocation"></action>
+		<!-- 用户登录 -->
+		<action name="common/member/signin" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="signin"><interceptor-ref name="irilleStack"></interceptor-ref></action>
+		<!-- 用户注册 -->
+		<action name="common/member/signup" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="signup"><interceptor-ref name="irilleStack"></interceptor-ref></action>
+		<!-- 我的-二维码 -->
+		<action name="common/member/qrcode" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="qrcode"></action>
+		<!-- 关注用户 -->
+		<action name="common/member/follow" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="follow"></action>
+		<!-- 取关用户 -->
+		<action name="common/member/unfollow" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="unfollow"></action>
+		<!-- 设置我的地域信息 -->
+		<action name="common/member/location/upd" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="updLocation"></action>
+		<!-- 获取我的地域信息 -->
+		<action name="common/member/location/get" class="com.xieliaobaba.action.customer.common.impl.MemberAction" method="getLocation"></action>
+		<!-- 评论作品&回复评论 -->
+		<action name="common/comment/add" class="com.xieliaobaba.action.customer.common.impl.CommentAction" method="add"></action>
+		<!-- 作品评论列表 -->
+		<action name="common/comment/list" class="com.xieliaobaba.action.customer.common.impl.CommentAction" method="list"></action>
+		<!-- 作品列表 -->
+		<action name="common/works/list" class="com.xieliaobaba.action.customer.common.impl.WorksAction" method="list"></action>
+		<!-- 作品详情 -->
+		<action name="common/works/get" class="com.xieliaobaba.action.customer.common.impl.WorksAction" method="get"></action>
+		<!-- 分类列表 -->
+		<action name="common/category/list" class="com.xieliaobaba.action.customer.common.impl.CategoryAction" method="list"></action>
+		<!-- 设置个人信息-设计师 -->
+		<action name="design/designer/upd" class="com.xieliaobaba.action.customer.design.impl.DesignerAction" method="upd"></action>
+		<!-- 获取个人信息-设计师 -->
+		<action name="design/designer/get" class="com.xieliaobaba.action.customer.design.impl.DesignerAction" method="get"></action>
+		<!-- 发布作品-文章 -->
+		<action name="design/article/publish" class="com.xieliaobaba.action.customer.design.impl.ArticleAction" method="publish"></action>
+		<!-- 图片上传-文章 -->
+		<action name="design/article/image/upload" class="com.xieliaobaba.action.customer.design.impl.ArticleAction" method="uploadImage"></action>
+		<!-- 设置个人信息-鞋企 -->
+		<action name="material/company/upd" class="com.xieliaobaba.action.customer.material.impl.CompanyAction" method="upd"></action>
+		<!-- 获取个人信息-鞋企 -->
+		<action name="material/company/get" class="com.xieliaobaba.action.customer.material.impl.CompanyAction" method="get"></action>
+		<!-- 发布作品-模板 -->
+		<action name="material/design/publish" class="com.xieliaobaba.action.customer.material.impl.DesignAction" method="publish"></action>
+		<!-- 图片上传-模板 -->
+		<action name="material/design/image/upload" class="com.xieliaobaba.action.customer.material.impl.DesignAction" method="uploadImage"></action>
+		<!-- 给作品点赞 -->
+		<action name="common/works/like" class="com.xieliaobaba.action.customer.common.impl.WorksAction" method="like"></action>
+		<!-- 取消点赞 -->
+		<action name="common/works/unlike" class="com.xieliaobaba.action.customer.common.impl.WorksAction" method="unlike"></action>
+		<!-- 收藏作品 -->
+		<action name="common/works/collect" class="com.xieliaobaba.action.customer.common.impl.WorksAction" method="collect"></action>
+		<!-- 取消收藏作品 -->
+		<action name="common/works/uncollect" class="com.xieliaobaba.action.customer.common.impl.WorksAction" method="uncollect"></action>
+	</package>
+</struts>
+ 
